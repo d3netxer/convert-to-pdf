@@ -1,0 +1,34 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Description: Convert PDFs
+
+Globals:
+    Function:
+        Timeout: 3
+        Runtime: nodejs12.x
+
+Resources:
+    PDFConvertFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            CodeUri: convert-to-pdf/
+            Handler: app.lambdaHandler
+            Timeout: 120
+            Events:
+                ContentUploadEvent:
+                    Type: S3
+                    Properties:
+                      Bucket: !Ref SrcBucket
+                      Events: s3:ObjectCreated:*
+            Policies:
+            - Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - 's3:GetObject'
+                  Resource: 'arn:aws:s3:::*'
+
+    SrcBucket:
+        Type: AWS::S3::Bucket
+    
